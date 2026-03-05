@@ -1,106 +1,171 @@
-# New Nx Repository
+# MLSys - LLM Serving Engine
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+> CS4262/5462 Machine Learning Systems | Project 1 | **Track B: Customer Support Chatbot**
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Overview
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-## Finish your Nx platform setup
+A high-throughput LLM serving engine optimized for interactive chat, built to handle **128 concurrent sessions** with low latency and intelligent KV cache management.
 
-🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/mfZlboiMcY) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
-## Generate a library
+| Spec | Detail |
+|------|--------|
+| **Model** | Qwen/Qwen3-4B-Instruct-2507 |
+| **Max Context** | 8,192 tokens |
+| **Target GPU** | NVIDIA RTX 5080 |
+| **Platform** | Docker (linux/amd64) |
+| **Framework** | vLLM + FlashInfer |
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+### API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Liveness check |
+| `GET` | `/ready` | Engine readiness |
+| `POST` | `/v1/chat/completions` | Chat completion (returns `output` + `logprobs`) |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [mise](https://mise.jdx.dev/) - manages Python, Node, uv
+- [Docker](https://docs.docker.com/get-docker/) with NVIDIA GPU support
+- NVIDIA GPU with CUDA 12.8+
+
+### Setup
+
+```bash
+# Install tooling via mise
+mise install
+
+# Install project dependencies
+mise run install
+# or manually:
+npm install
+cd apps/chat-engine && uv sync
 ```
 
-## Run tasks
+### Running the Engine
 
-To build the library use:
+```bash
+# Build and start (Docker Compose)
+npx nx run chat-engine:serve
 
-```sh
-npx nx build pkg1
+# Check logs
+npx nx run chat-engine:logs
+
+# Quick smoke test
+npx nx run chat-engine:test
+
+# Stop
+npx nx run chat-engine:stop
 ```
 
-To run any task with Nx use:
+### Running Benchmarks
 
-```sh
-npx nx <target> <project-name>
+```bash
+# Full benchmark (concurrency=128)
+npx nx run benchmark:run
+
+# Local testing (concurrency=16)
+npx nx run benchmark:run-local
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+---
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## Project Structure
 
 ```
-npx nx release
+mlsys/
+├── apps/
+│   ├── chat-engine/           # LLM serving engine
+│   │   ├── app/
+│   │   │   ├── main.py        # FastAPI entrypoint
+│   │   │   ├── chat_engine.py # vLLM engine (optimization target)
+│   │   │   ├── schemas.py     # Request/response models
+│   │   │   └── constants.py   # Model config
+│   │   ├── scripts/           # Test scripts
+│   │   ├── Dockerfile
+│   │   ├── docker-compose.yaml
+│   │   └── pyproject.toml
+│   └── benchmark/             # Benchmark runner
+│       ├── runner_chat.py
+│       └── data/track2/
+├── mise.toml                  # Tool versions & task runner
+├── nx.json                    # Nx workspace config
+├── CLAUDE.md                  # AI assistant context
+└── .cursor/rules/agent.md     # Cursor AI context
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+---
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Development Workflow
 
-## Keep TypeScript project references up to date
+### Branching
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+| Pattern | Use |
+|---------|-----|
+| `feat/<desc>` | New features |
+| `fix/<desc>` | Bug fixes |
+| `opt/<desc>` | Performance optimizations |
+| `chore/<desc>` | Tooling, config, maintenance |
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+All work merges into `main` via Pull Requests.
 
-```sh
-npx nx sync
+### Nx Commands Cheatsheet
+
+```bash
+npx nx run chat-engine:build        # Build Docker image
+npx nx run chat-engine:serve        # Start engine
+npx nx run chat-engine:stop         # Stop engine
+npx nx run chat-engine:logs         # Tail logs
+npx nx run chat-engine:test         # Smoke test
+npx nx run chat-engine:lint         # Lint (ruff)
+npx nx run chat-engine:format       # Format (ruff)
+npx nx run chat-engine:push-image   # Build + push to GHCR
+npx nx run benchmark:run            # Benchmark (128 concurrency)
+npx nx run benchmark:run-local      # Benchmark (16 concurrency)
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Mise Tasks
 
-```sh
-npx nx sync:check
+```bash
+mise run install     # Install all deps
+mise run build       # Build Docker image
+mise run serve       # Start engine
+mise run benchmark   # Run benchmark
+mise run lint        # Lint all
+mise run test        # Test all
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+---
 
-## Nx Cloud
+## Deployment (Vast.ai)
 
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+```bash
+# 1. Login to GHCR
+echo $CR_PAT | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# 2. Build + push
+npx nx run chat-engine:push-image
 
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+# 3. Get digest
+docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/$GITHUB_USERNAME/chat-engine:latest
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Then create a Vast.ai template with your image digest and rent an RTX 5080 instance.
 
-## Install Nx Console
+---
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## Evaluation Criteria
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Latency**: End-to-end P50 and P95
+- **Throughput**: Requests per second at concurrency=128
+- **Perplexity**: Output quality (lower is better)
+- Optimizations: novelty and effectiveness
 
-## Useful links
+---
 
-Learn more:
+## Team
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Built with vLLM, FastAPI, Nx, and mise.

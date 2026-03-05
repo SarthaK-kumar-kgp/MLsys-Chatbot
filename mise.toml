@@ -1,0 +1,31 @@
+[tools]
+python = "3.12"
+node = "22"
+uv = "latest"
+
+[env]
+PYTHONDONTWRITEBYTECODE = "1"
+
+[tasks.install]
+description = "Install all dependencies"
+run = "npm install && cd apps/chat-engine && uv sync"
+
+[tasks.lint]
+description = "Lint all Python code"
+run = "npx nx run-many --target=lint"
+
+[tasks.test]
+description = "Run all tests"
+run = "npx nx run-many --target=test"
+
+[tasks.build]
+description = "Build Docker image for chat-engine"
+run = "npx nx run chat-engine:build"
+
+[tasks.serve]
+description = "Start chat-engine locally via Docker Compose"
+run = "npx nx run chat-engine:serve"
+
+[tasks.benchmark]
+description = "Run benchmark against running engine"
+run = "npx nx run benchmark:run"

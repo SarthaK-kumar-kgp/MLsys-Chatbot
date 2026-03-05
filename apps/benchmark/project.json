@@ -1,0 +1,21 @@
+{
+  "name": "benchmark",
+  "projectType": "application",
+  "sourceRoot": "apps/benchmark",
+  "targets": {
+    "run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run python runner_chat.py --url http://localhost:8000 --data data/track2/train.jsonl --concurrency 128",
+        "cwd": "apps/benchmark"
+      }
+    },
+    "run-local": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run python runner_chat.py --url http://localhost:8000 --data data/track2/train.jsonl --concurrency 16",
+        "cwd": "apps/benchmark"
+      }
+    }
+  }
+}
