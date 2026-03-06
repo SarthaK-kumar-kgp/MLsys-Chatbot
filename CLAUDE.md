@@ -49,9 +49,163 @@ mise run test        # Test all
 
 ## Git Workflow
 
+- NEVER add "Co-Authored-By" lines to commit messages
 - `main` branch is protected - all work goes through PRs
 - Branch naming: `feat/<description>`, `fix/<description>`, `opt/<description>`
 - Use `/create-pr` command below for PR creation
+
+## Planning & Experimentation
+
+All optimization work MUST be tracked in `plan.md` at the repo root. This is the single source of truth for what we've tried, what worked, and what to do next.
+
+### Hard Rules
+
+1. **Before starting work**: Read `plan.md` (if it exists) to understand current state
+2. **After EVERY benchmark/experiment run**: IMMEDIATELY update `plan.md` before doing anything else. No exceptions.
+3. **After EVERY exploration phase**: Log discoveries, surprises, and decisions
+4. **When using subagents**: Save important findings from agent research back to `plan.md`
+
+### What Goes in plan.md
+
+- **Current goal** and hypothesis being tested
+- **Experiment log** with configs tried and results (P50, P95, throughput, perplexity)
+- **Discoveries & surprises** found during exploration
+- **Decisions made** and rationale (why X over Y)
+- **Key skills/techniques** learned that may be reusable
+- **Next steps** prioritized by expected impact
+- **Dead ends** so we don't repeat them
+
+### Benchmark Results Format
+
+When logging benchmark results, always include:
+```
+| Run | Config Change | P50 (ms) | P95 (ms) | Throughput (req/s) | Perplexity | Notes |
+|-----|--------------|----------|----------|-------------------|------------|-------|
+```
+
+---
+
+# /plan
+
+Create or update `plan.md` to track the current optimization work.
+
+## Steps
+
+1. **Check if `plan.md` exists**:
+   - If yes: read it and understand current state
+   - If no: create it with the template below
+
+2. **Understand context**:
+   - Read recent git log for what's been done
+   - Check current branch and any in-progress work
+   - If benchmark results are available, gather them
+
+3. **Create/update plan.md** with this structure:
+
+   ```markdown
+   # Optimization Plan
+
+   > Last updated: YYYY-MM-DD
+
+   ## Current Goal
+   [What we're trying to achieve right now]
+
+   ## Hypothesis
+   [What we think will improve performance and why]
+
+   ## Experiment Log
+
+   | # | Date | Config Change | P50 (ms) | P95 (ms) | Throughput | Perplexity | Verdict |
+   |---|------|--------------|----------|----------|------------|------------|---------|
+   | 1 | ...  | baseline     | ...      | ...      | ...        | ...        | ...     |
+
+   ## Discoveries & Surprises
+   - [Things learned during exploration that weren't expected]
+
+   ## Key Techniques & Skills
+   - [Reusable patterns, tools, or approaches discovered]
+
+   ## Decisions
+   - [Decision]: [Rationale]
+
+   ## Dead Ends
+   - [What was tried and why it didn't work - so we don't repeat it]
+
+   ## Next Steps
+   1. [Highest impact item]
+   2. [Next item]
+   ```
+
+4. **Show the user** the current state of the plan.
+
+---
+
+# /log-result
+
+Log a benchmark or experiment result to `plan.md` immediately after a run.
+
+## Steps
+
+1. **Read `plan.md`** (error if it doesn't exist - run `/plan` first)
+
+2. **Gather result data**:
+   - Ask user for results if not provided, or parse from benchmark output
+   - Required: what config changed, P50, P95, throughput
+   - Optional: perplexity, notes
+
+3. **Append to Experiment Log table** in `plan.md`
+
+4. **Add any discoveries/surprises** mentioned by user
+
+5. **Update "Next Steps"** based on what we learned
+
+6. **Show the updated plan** to the user.
+
+---
+
+# /explore
+
+Systematically explore an optimization approach before implementing.
+
+## Steps
+
+1. **Read `plan.md`** to understand what's been tried
+
+2. **Define the exploration scope**:
+   - What are we exploring? (e.g., quantization options, batching strategies)
+   - What are the key questions to answer?
+
+3. **Research using subagents** (launch in parallel where possible):
+   - Search docs, papers, GitHub issues for the approach
+   - Check vLLM/FlashInfer docs for relevant configs
+   - Look at what configs others use for similar models
+
+4. **Synthesize findings** into a summary with:
+   - Options available and tradeoffs
+   - Recommended approach with rationale
+   - Expected impact (rough estimate)
+   - Risks or gotchas
+
+5. **Update `plan.md`**:
+   - Add findings to "Discoveries & Surprises"
+   - Add learned techniques to "Key Techniques & Skills"
+   - Update "Next Steps" with the exploration results
+
+6. **Present recommendation** to user for approval before implementing.
+
+---
+
+# /review-plan
+
+Review the current plan and suggest next steps.
+
+## Steps
+
+1. **Read `plan.md`**
+2. **Analyze experiment history**: trends, what's working, diminishing returns
+3. **Check for gaps**: untried approaches, unexplored configs
+4. **Suggest prioritized next steps** based on expected impact vs effort
+5. **Update `plan.md`** "Next Steps" section with recommendations
 
 ---
 
