@@ -1,0 +1,9 @@
+#!/bin/bash
+# Example request to the chat engine
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{"role": "user", "content": "Hello, how can I return my order?"}],
+    "temperature": 0,
+    "max_tokens": 256
+  }'
