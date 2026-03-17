@@ -3,7 +3,7 @@
 ## Project Overview
 
 CS4262/5462 Machine Learning Systems - Project 1: LLM Serving
-**Track B**: High-throughput serving engine for interactive chat (Qwen3-4B-Instruct-2507)
+**Track 2**: High-throughput serving engine for interactive chat (Qwen3-4B-Instruct-2507)
 
 ### Key Specs
 - Model: `Qwen/Qwen3-4B-Instruct-2507` with max context 8192

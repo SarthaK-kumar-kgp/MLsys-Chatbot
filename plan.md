@@ -1,10 +1,10 @@
 # Optimization Plan
 
-> Last updated: 2026-03-15
+> Last updated: 2026-03-17
 
 ## Current Goal
 
-Build and optimize a high-throughput vLLM serving engine for Track B (Customer Support Chatbot)
+Build and optimize a high-throughput vLLM serving engine for Track 2 (Customer Support Chatbot)
 targeting maximum throughput and minimum latency at 128 concurrency on a single RTX 5080.
 
 ## Hypothesis
@@ -84,7 +84,7 @@ Incoming Request (conc. 128)
 | 11 | max_num_batched_tokens tuning | Controls prefill chunk size, affects throughput/latency tradeoff |
 | 12 | Swap space tuning | More CPU swap for KV cache overflow |
 
-### Deprioritized from Proposal
+### Deprioritized
 
 | # | Optimization | Reason |
 |---|-------------|--------|
@@ -130,9 +130,9 @@ Incoming Request (conc. 128)
 
 ## Next Steps
 
-1. Deploy baseline on Vast.ai RTX 5080 and run benchmark (get baseline numbers)
-2. Deploy optimized build and run benchmark (measure improvement)
-3. Tune parameters if needed (max_model_len, max_num_seqs, gpu_memory_utilization)
-4. Try speculative decoding (n-gram) if decode is the bottleneck
-5. Try max_num_batched_tokens tuning if prefill throughput is limiting
-6. Final Docker image push to GHCR
+1. Deploy on Modal (L4 GPU) and test that the engine starts and serves requests
+2. Run benchmark against Modal deployment to get initial numbers
+3. Deploy on Vast.ai RTX 5080 with Docker image for final benchmarking
+4. Tune parameters if needed (max_model_len, max_num_seqs, gpu_memory_utilization)
+5. Try speculative decoding (n-gram) if decode is the bottleneck
+6. Final Docker image push to GHCR for submission

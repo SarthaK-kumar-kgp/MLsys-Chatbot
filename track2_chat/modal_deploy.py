@@ -1,9 +1,10 @@
 """Deploy chat-engine on Modal with a GPU.
 
-Usage:
-    modal run track2_chat/modal_deploy.py::download_model    # download model (one-time)
-    modal deploy track2_chat/modal_deploy.py                 # deploy server
-    modal serve track2_chat/modal_deploy.py                  # dev mode (hot reload)
+Usage (run from track2_chat/ directory):
+    cd track2_chat
+    modal run modal_deploy.py::download_model    # download model (one-time)
+    modal deploy modal_deploy.py                 # deploy server
+    modal serve modal_deploy.py                  # dev mode (hot reload)
 """
 
 import modal
