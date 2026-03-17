@@ -1,9 +1,0 @@
-{
-  "name": "@mlsys/monorepo",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {},
-  "devDependencies": {
-    "nx": "22.5.1"
-  }
-}

@@ -9,42 +9,54 @@ CS4262/5462 Machine Learning Systems - Project 1: LLM Serving
 - Model: `Qwen/Qwen3-4B-Instruct-2507` with max context 8192
 - Endpoints: `GET /health`, `GET /ready`, `POST /v1/chat/completions`
 - Target concurrency: 128 simultaneous requests
-- Evaluation: P50/P95 latency, throughput (req/s), perplexity
+- Evaluation: P50/P99 latency, throughput (req/s), perplexity
 - Runtime: Single NVIDIA RTX 5080, Docker (amd64), model at `/root/.cache/huggingface`
 - Framework: vLLM with FlashInfer attention backend
 
-## Monorepo Structure
+## Repository Structure
 
 ```
-apps/
-  chat-engine/    # Main serving engine (Python/FastAPI/vLLM/Docker)
-  benchmark/      # Benchmark runner from mlsys_llm_benchmark
+track2_chat/           # Serving engine (Python/FastAPI/vLLM/Docker)
+  app/
+    main.py            # FastAPI entry point with lifespan + caching
+    chat_engine.py     # vLLM engine with optimizations
+    constants.py       # Configuration constants (env-configurable)
+    schemas.py         # Pydantic request/response models
+    cache.py           # Exact-match response cache
+  Dockerfile
+  docker-compose.yaml
+  pyproject.toml
+  modal_deploy.py      # Modal GPU deployment script
+benchmark/             # Benchmark runner (from mlsys_llm_benchmark)
+  runner_chat.py       # Track 2 benchmark script
+  data/track2/train.jsonl  # 13,435 benchmark prompts
+  pyproject.toml
+plan.md                # Optimization tracking
 ```
 
-## Nx Commands
+## Quick Commands
 
+### Engine (Docker)
 ```bash
-npx nx run chat-engine:build        # Build Docker image
-npx nx run chat-engine:serve        # Start engine (docker compose up)
-npx nx run chat-engine:stop         # Stop engine
-npx nx run chat-engine:logs         # Tail engine logs
-npx nx run chat-engine:test         # Quick smoke test
-npx nx run chat-engine:lint         # Lint Python code
-npx nx run chat-engine:format       # Format Python code
-npx nx run chat-engine:push-image   # Build + tag + push to GHCR
-npx nx run benchmark:run            # Run benchmark (concurrency=128)
-npx nx run benchmark:run-local      # Run benchmark (concurrency=16)
+cd track2_chat
+docker compose up --build -d     # Build & start engine
+docker compose stop              # Stop engine
+curl http://localhost:8000/ready  # Check readiness
 ```
 
-## Mise Tasks
-
+### Engine (Modal)
 ```bash
-mise run install     # Install all deps
-mise run build       # Build Docker image
-mise run serve       # Start engine
-mise run benchmark   # Run benchmark
-mise run lint        # Lint all
-mise run test        # Test all
+cd track2_chat
+modal run modal_deploy.py::download_model   # Download model (one-time)
+modal deploy modal_deploy.py                # Deploy server
+modal serve modal_deploy.py                 # Dev mode (hot reload)
+```
+
+### Benchmark
+```bash
+cd benchmark
+uv sync
+uv run runner_chat.py --url http://localhost:8000 --data data/track2/train.jsonl --concurrency 128
 ```
 
 ## Git Workflow
@@ -68,7 +80,7 @@ All optimization work MUST be tracked in `plan.md` at the repo root. This is the
 ### What Goes in plan.md
 
 - **Current goal** and hypothesis being tested
-- **Experiment log** with configs tried and results (P50, P95, throughput, perplexity)
+- **Experiment log** with configs tried and results (P50, P99, throughput, perplexity)
 - **Discoveries & surprises** found during exploration
 - **Decisions made** and rationale (why X over Y)
 - **Key skills/techniques** learned that may be reusable
@@ -79,7 +91,7 @@ All optimization work MUST be tracked in `plan.md` at the repo root. This is the
 
 When logging benchmark results, always include:
 ```
-| Run | Config Change | P50 (ms) | P95 (ms) | Throughput (req/s) | Perplexity | Notes |
+| Run | Config Change | P50 (ms) | P99 (ms) | Throughput (req/s) | Perplexity | Notes |
 |-----|--------------|----------|----------|-------------------|------------|-------|
 ```
 
@@ -115,7 +127,7 @@ Create or update `plan.md` to track the current optimization work.
 
    ## Experiment Log
 
-   | # | Date | Config Change | P50 (ms) | P95 (ms) | Throughput | Perplexity | Verdict |
+   | # | Date | Config Change | P50 (ms) | P99 (ms) | Throughput | Perplexity | Verdict |
    |---|------|--------------|----------|----------|------------|------------|---------|
    | 1 | ...  | baseline     | ...      | ...      | ...        | ...        | ...     |
 
@@ -150,7 +162,7 @@ Log a benchmark or experiment result to `plan.md` immediately after a run.
 
 2. **Gather result data**:
    - Ask user for results if not provided, or parse from benchmark output
-   - Required: what config changed, P50, P95, throughput
+   - Required: what config changed, P50, P99, throughput
    - Optional: perplexity, notes
 
 3. **Append to Experiment Log table** in `plan.md`

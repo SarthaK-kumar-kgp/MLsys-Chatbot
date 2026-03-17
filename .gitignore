@@ -1,33 +1,26 @@
-# Dependencies
-node_modules/
-.venv/
+# Python
 __pycache__/
-*.pyc
-*.pyo
-
-# Nx
-.nx/cache
-.nx/workspace-data
-
-# Build outputs
-dist/
-tmp/
+*.py[cod]
+*$py.class
 *.egg-info/
+*.egg
+*.whl
+dist/
+build/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
 
 # IDE
 .idea/
+.vscode/
+.cursor/
 *.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Python
-*.egg
-*.whl
-.mypy_cache/
-.ruff_cache/
-.pytest_cache/
 
 # Docker
 *.log
@@ -42,5 +35,6 @@ Thumbs.db
 *.pt
 *.onnx
 
-# uv
-uv.lock
+# Nx (legacy)
+node_modules/
+.nx/
