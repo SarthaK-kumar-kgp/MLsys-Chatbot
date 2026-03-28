@@ -1,5 +1,9 @@
 from app.schemas import ChatRequest, ChatResponse
-from app.constants import MODEL_NAME, MAX_MODEL_LENGTH
+from app.constants import (
+    MODEL_NAME, MAX_MODEL_LENGTH,
+    CHUNKED_PREFILL_ENABLED, MAX_NUM_BATCHED_TOKENS,
+    MAX_NUM_SEQS, GPU_MEMORY_UTILIZATION, ENABLE_PREFIX_CACHING,
+)
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.sampling_params import SamplingParams
@@ -23,9 +27,13 @@ class ChatEngine:
 
         engine_args = AsyncEngineArgs(
             model=self.model_name,
-            gpu_memory_utilization=0.9,
+            gpu_memory_utilization=GPU_MEMORY_UTILIZATION,
             max_model_len=MAX_MODEL_LENGTH,
             trust_remote_code=True,
+            enable_chunked_prefill=CHUNKED_PREFILL_ENABLED,
+            max_num_batched_tokens=MAX_NUM_BATCHED_TOKENS,
+            max_num_seqs=MAX_NUM_SEQS,
+            enable_prefix_caching=ENABLE_PREFIX_CACHING,
         )
 
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
