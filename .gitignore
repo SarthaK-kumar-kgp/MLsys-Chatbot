@@ -17,6 +17,8 @@ build/
 .vscode/
 .cursor/
 *.sublime-workspace
+*.swp
+*.swo
 
 # OS
 .DS_Store
