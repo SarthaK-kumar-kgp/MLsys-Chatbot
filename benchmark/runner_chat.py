@@ -133,6 +133,7 @@ async def run_performance(url, data_path, concurrency, timeout):
     if latencies:
         print(f"  Avg Latency: {np.mean(latencies):.4f}s")
         print(f"  P50 Latency: {np.percentile(latencies, 50):.4f}s")
+        print(f"  P95 Latency: {np.percentile(latencies, 95):.4f}s")
         print(f"  P99 Latency: {np.percentile(latencies, 99):.4f}s")
     if perplexities:
         print(f"  Avg Perplexity: {np.mean(perplexities):.4f}")

@@ -1,14 +1,23 @@
 import os
 
-# Model: override with MODEL_NAME env var to point to a local path on Vast.ai
-# e.g. export MODEL_NAME=/workspace/hf-cache/models--Qwen.../snapshots/...
-MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen3-4B-Instruct-2507")
-MAX_MODEL_LENGTH = 8192
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen3-4B-Instruct-2507")
+MAX_MODEL_LENGTH = int(os.getenv("MAX_MODEL_LENGTH", "288"))
+GPU_MEMORY_UTILIZATION = float(os.getenv("GPU_MEMORY_UTILIZATION", "0.92"))
+QUANTIZATION = os.getenv("QUANTIZATION", "fp8") or None
+KV_CACHE_DTYPE = os.getenv("KV_CACHE_DTYPE", "auto")
+MAX_NUM_SEQS = int(os.getenv("MAX_NUM_SEQS", "192"))
+MAX_NUM_BATCHED_TOKENS = int(os.getenv("MAX_NUM_BATCHED_TOKENS", "8192"))
+ENABLE_PREFIX_CACHING = os.getenv("ENABLE_PREFIX_CACHING", "false").lower() == "true"
+ENABLE_CHUNKED_PREFILL = os.getenv("ENABLE_CHUNKED_PREFILL", "true").lower() == "true"
+CACHE_MAX_SIZE = int(os.getenv("CACHE_MAX_SIZE", "16384"))
+SWAP_SPACE = int(os.getenv("SWAP_SPACE", "0"))
+ENFORCE_EAGER = os.getenv("ENFORCE_EAGER", "false").lower() == "true"
 
-# Opt 2: Chunked Prefill tuning parameters
-# Tune these to find the best P99 latency vs throughput tradeoff
-CHUNKED_PREFILL_ENABLED = True
-MAX_NUM_BATCHED_TOKENS = 2048   # Chunk size C: try 256, 512, 1024, 2048
-MAX_NUM_SEQS = 256              # Max batch size: try 64, 128, 256
-GPU_MEMORY_UTILIZATION = 0.90  # VRAM allocation: try 0.90, 0.95
-ENABLE_PREFIX_CACHING = True    # APC: reuse KV cache for shared prefixes
+SEMANTIC_CACHE_ENABLED = os.getenv("SEMANTIC_CACHE_ENABLED", "true").lower() == "true"
+
+NUM_SCHEDULER_STEPS = int(os.getenv("NUM_SCHEDULER_STEPS", "1"))
+
+SPEC_DECODE_ENABLED = os.getenv("SPEC_DECODE_ENABLED", "false").lower() == "true"
+SPEC_NUM_TOKENS = int(os.getenv("SPEC_NUM_TOKENS", "3"))
+SPEC_PROMPT_LOOKUP_MAX = int(os.getenv("SPEC_PROMPT_LOOKUP_MAX", "4"))
+SPEC_PROMPT_LOOKUP_MIN = int(os.getenv("SPEC_PROMPT_LOOKUP_MIN", "2"))
