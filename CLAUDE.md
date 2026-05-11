@@ -61,7 +61,6 @@ uv run runner_chat.py --url http://localhost:8000 --data data/track2/train.jsonl
 
 ## Git Workflow
 
-- NEVER add "Co-Authored-By" lines to commit messages
 - `main` branch is protected - all work goes through PRs
 - Branch naming: `feat/<description>`, `fix/<description>`, `opt/<description>`
 - Use `/create-pr` command below for PR creation
