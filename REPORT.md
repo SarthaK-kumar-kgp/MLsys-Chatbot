@@ -6,6 +6,8 @@
 **Hardware**: NVIDIA GeForce RTX 5080 (SM120, 16GB GDDR7, 960 GB/s)  
 **Framework**: vLLM 0.19.0 + FlashInfer + FastAPI  
 **Final Result**: **429 req/s** cold-start (vs 18 req/s unoptimized baseline = **23.6x improvement**)
+**Contributors**: Arya Bhosale (A0314484A) | Reiner Anggriawan Jasin (A0314502W) | Sarthak Kumar (A0330356L) | Thet Su Win (A0304980A)
+  
 
 ---
 
